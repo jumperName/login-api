@@ -10,6 +10,6 @@
     "mysql2": "^3.7.0"
   },
    "scripts": {
-              "start": "node index.js"
+             "start": "node app.js"
            }
 }
