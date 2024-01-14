@@ -9,8 +9,9 @@ const secret ='Fullstack-Login'
 var jwt = require('jsonwebtoken');
 app.use(cors())
 
- require('dotenv').config()
  const mysql = require('mysql2')
+
+ require('dotenv').config()
  const connection = mysql.createConnection(process.env.DATABASE_URL)
 
 // const connection = mysql.createConnection({
@@ -37,7 +38,7 @@ app.post('/register',jsonParser, function (req, res, next) {
 
 app.post('/input_appoint',jsonParser, function (req, res, next) {
  connection.execute(
-  'INSERT INTO appoint(cid,app_date,app_time,firstname,lastname,tel,dental_t,app_line) VALUES (?,?,?,?,?,?,?,?)',
+  'INSERT INTO appoint(cid,app_date,app_time,firstname,lastname,tel,dental_t,app_line,timestamp) VALUES (?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)',
   [req.body.cid,req.body.app_date,req.body.app_time,req.body.firstname,req.body.lastname,req.body.tel,req.body.dental_t,req.body.app_line],
   function(err, results, fields) {
     if(err){
