@@ -8,8 +8,8 @@
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.29.4",
     "mysql2": "^3.7.0",
+  },
      "scripts": {
               "start": "node app.js"
            }
-  }
 }
