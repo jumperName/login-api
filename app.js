@@ -9,11 +9,10 @@ const secret ='Fullstack-Login'
 var jwt = require('jsonwebtoken');
 app.use(cors())
 
-require('dotenv').config()
+ require('dotenv').config()
+ const mysql = require('mysql2')
+ const connection = mysql.createConnection(process.env.DATABASE_URL)
 
-const mysql = require('mysql2')
-const connection = mysql.createConnection(process.env.DATABASE_URL)
-// create the connection to database
 // const connection = mysql.createConnection({
 //   host: 'localhost',
 //   user: 'root',
@@ -38,8 +37,8 @@ app.post('/register',jsonParser, function (req, res, next) {
 
 app.post('/input_appoint',jsonParser, function (req, res, next) {
  connection.execute(
-  'INSERT INTO appoint(cid,app_date,app_time,firstname,lastname,tel,dental_t) VALUES (?,?,?,?,?,?,?)',
-  [req.body.cid,req.body.app_date,req.body.app_time,req.body.firstname,req.body.lastname,req.body.tel,req.body.dental_t],
+  'INSERT INTO appoint(cid,app_date,app_time,firstname,lastname,tel,dental_t,app_line) VALUES (?,?,?,?,?,?,?,?)',
+  [req.body.cid,req.body.app_date,req.body.app_time,req.body.firstname,req.body.lastname,req.body.tel,req.body.dental_t,req.body.app_line],
   function(err, results, fields) {
     if(err){
       res.json({status:'error',massage:err})
@@ -114,7 +113,6 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
  );
  
  })
-
 
  app.get('/day_count/:day_name',jsonParser, function (req, res, next) {
   const day_name = req.params.day_name;
@@ -204,6 +202,76 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
    }
  );
  
+ })
+
+ app.get('/get_alldatedent1/:app_YEAR/MONTH/:app_MONTH',jsonParser, function (req, res, next) {
+  const app_YEAR = req.params.app_YEAR;
+  const app_MONTH = req.params.app_MONTH;
+
+  connection.execute(
+   'Select  * from appoint where dental_t = 1 AND YEAR(app_date)=?  AND MONTH(app_date)=? ',
+   [app_YEAR , app_MONTH],
+   function(err, results, fields) {
+     if(err){
+       res.json({status:'error',massage:err})
+       return
+     }
+     res.json(results)
+   }
+ ); 
+ })
+
+ app.get('/get_dayoffdent1/:app_YEAR/MONTH/:app_MONTH',jsonParser, function (req, res, next) {
+  const app_YEAR = req.params.app_YEAR;
+  const app_MONTH = req.params.app_MONTH;
+
+  connection.execute(
+   'Select  * from dayoff where dental_t = 1 AND YEAR(d_date)=?  AND MONTH(d_date)=? ',
+   [app_YEAR , app_MONTH],
+   function(err, results, fields) {
+     if(err){
+       res.json({status:'error',massage:err})
+       return
+     }
+     res.json(results)
+   }
+ ); 
+ })
+
+ app.get('/get_alldatedent2/:app_YEAR/MONTH/:app_MONTH',jsonParser, function (req, res, next) {
+  const app_YEAR = req.params.app_YEAR;
+  const app_MONTH = req.params.app_MONTH;
+
+  connection.execute(
+   'Select  * from appoint where dental_t = 2 AND YEAR(app_date)=?  AND MONTH(app_date)=? ',
+   [app_YEAR , app_MONTH],
+   function(err, results, fields) {
+     if(err){
+       res.json({status:'error',massage:err})
+       return
+     }
+     res.json(results)
+   }
+ );
+ 
+ })
+
+ 
+ app.get('/get_dayoffdent2/:app_YEAR/MONTH/:app_MONTH',jsonParser, function (req, res, next) {
+  const app_YEAR = req.params.app_YEAR;
+  const app_MONTH = req.params.app_MONTH;
+
+  connection.execute(
+   'Select  * from dayoff where dental_t = 2 AND YEAR(d_date)=?  AND MONTH(d_date)=? ',
+   [app_YEAR , app_MONTH],
+   function(err, results, fields) {
+     if(err){
+       res.json({status:'error',massage:err})
+       return
+     }
+     res.json(results)
+   }
+ ); 
  })
 
 //  app.get('/get_fulldatedent1',jsonParser, function (req, res, next) {
@@ -330,6 +398,66 @@ connection.execute(
      }
    );
    })
+
+   app.get('/get_dayoff',jsonParser, function (req, res, next) {
+    connection.execute(
+     'select d_id,d_date,d_name ,d.dental_name from  dayoff as o INNER JOIN dental_type as d ON o.dental_t = d.dental_t;',
+     function(err, results, fields) {
+       if(err){
+         res.json({status:'error',massage:err})
+         return
+       }
+       res.json(results)
+     }
+   );
+   
+   })
+  
+   app.delete('/deleteDayoff/:d_id',jsonParser, function (req, res, next) {
+    const d_id = req.params.d_id;
+    connection.execute(
+      'DELETE FROM dayoff WHERE d_id=?',
+      [d_id],
+     function(err, results, fields) {
+      if(err){
+        res.json({status:'error',massage:err})
+        return
+      }
+      res.json({status:'ok'})
+    }
+  ); 
+   })
+  
+     app.post('/input_Dayoff',jsonParser, function (req, res, next) {
+    
+     connection.execute(
+      'INSERT INTO dayoff(d_date,d_name,dental_t) VALUES (?,?,?)',
+      [req.body.d_date,req.body.d_name,req.body.dental_t],
+      function(err, results, fields) {
+        if(err){
+          res.json({status:'error',massage:err})
+          return
+        }
+        res.json({status:'ok'})
+      }
+    );
+    })
+  
+   
+    app.put('/updateDayoff/:d_id',jsonParser, function (req, res, next) {
+      const d_id = req.params.d_id;
+      connection.execute(
+        'UPDATE dayoff SET d_date=?, dental_t=? WHERE d_id =?',
+       [req.body.d_date,req.body.dental_t,d_id],
+       function(err, results, fields) {
+         if(err){
+           res.json({status:'error',massage:err})
+           return
+         }
+         res.json({status:'ok'})
+       }
+     );
+     })
 
 
 app.listen(3333, function () {
