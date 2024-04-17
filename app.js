@@ -24,7 +24,7 @@ pool.getConnection((err, conn) => {
 })
 module.exports = pool.promise()
 
-  require('dotenv').config()
+  //require('dotenv').config()
  // const connection = mysql.createConnection(process.env.DATABASE_URL)
 
 // const connection = mysql.createConnection({
