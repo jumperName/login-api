@@ -11,18 +11,18 @@ app.use(cors())
 
  const mysql = require('mysql2')
 
- const pool = mysql.createPool({
+ const connection = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
 });
 
-pool.getConnection((err, conn) => {
+connection.getConnection((err, conn) => {
   if(err) console.log(err)
   console.log("connect successfully")
 })
-module.exports = pool.promise()
+module.exports = connection.promise()
 
   //require('dotenv').config()
  // const connection = mysql.createConnection(process.env.DATABASE_URL)
