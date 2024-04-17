@@ -11,8 +11,21 @@ app.use(cors())
 
  const mysql = require('mysql2')
 
- require('dotenv').config()
- const connection = mysql.createConnection(process.env.DATABASE_URL)
+ const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+});
+
+pool.getConnection((err, conn) => {
+  if(err) console.log(err)
+  console.log("connect successfully")
+})
+module.exports = pool.promise()
+
+//  require('dotenv').config()
+//  const connection = mysql.createConnection(process.env.DATABASE_URL)
 
 // const connection = mysql.createConnection({
 //   host: 'localhost',
@@ -50,6 +63,39 @@ app.post('/input_appoint',jsonParser, function (req, res, next) {
 );
 })
 
+app.post('/input_appointImpace',jsonParser, function (req, res, next) { //เช็คไม่ให้จองซ้ำใน7วัน
+  connection.execute(
+   'INSERT INTO appoint(cid,app_date,app_time,firstname,lastname,tel,dental_t,app_line,timestamp) VALUES (?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)',
+   [req.body.cid,req.body.app_date,req.body.app_time,req.body.firstname,req.body.lastname,req.body.tel,req.body.dental_t,req.body.app_line],
+   function(err, results, fields) {
+    if(results.length==0) { res.json({status:'error',massage:'no user found'}); return }
+     if(err){
+       res.json({status:'error',massage:err})
+       return
+     }
+     res.json({status:'ok'})
+   }
+ );
+ })
+
+ app.post('/Check_dent2',jsonParser, function (req, res, next) {
+  connection.execute(
+    'select * from appoint  where dental_t = 2   AND app_date > now() - INTERVAL-7  day AND app_date < now() - INTERVAL-15  day  AND cid=? AND firstname=? AND lastname=? ORDER BY app_date ASC',
+    [req.body.cid,req.body.firstname,req.body.lastname], 
+    function(err, appoint, fields) {
+     
+      if(appoint.length==1) { 
+      
+        res.json({status:'ไม่สามารถจองคิวได้เนื่องจากคุณได้มีการจองคิวแล้ว',massage:'no user found'}); 
+      
+
+        return
+       }   
+      
+    }
+  );
+})
+
 app.post('/login',jsonParser, function (req, res, next) {
   connection.execute(
     'SELECT *FROM users WHERE username=?',
@@ -69,6 +115,9 @@ app.post('/login',jsonParser, function (req, res, next) {
   );
 })
 
+
+
+
 app.get('/authen',jsonParser, function (req, res, next) {
   try{
     const token =  req.headers.authorization.split(' ')[1]
@@ -83,14 +132,14 @@ app.get('/authen',jsonParser, function (req, res, next) {
   
 })
 
-app.get('/get_extract/:app_date',jsonParser, function (req, res, next) {
+app.get('/get_extract/:app_date',jsonParser, function (req, res, next) { //ตัวเดิม
   const app_date = req.params.app_date;
   connection.execute(
     'select * from appoint where dental_t = 1 AND  app_date = ?',
     [app_date],
     function(err, results, fields) {
      if(err){
-       res.json({status:'error',massage:err})
+       res.json({status:'error',massage:get_impactederr})
        return
      }
      res.json(results)
@@ -98,6 +147,8 @@ app.get('/get_extract/:app_date',jsonParser, function (req, res, next) {
  );
  
  })
+
+
 
 app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
   const app_date = req.params.app_date;
@@ -222,6 +273,24 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
  ); 
  })
 
+ 
+ app.get('/get_alldatedent1v2/:app_YEAR/MONTH/:app_MONTH',jsonParser, function (req, res, next) {
+  const app_YEAR = req.params.app_YEAR;
+  const app_MONTH = req.params.app_MONTH;
+
+  connection.execute(
+   'Select  * from appoint where dental_t = 1 AND YEAR(app_date)=?  AND MONTH(app_date)=? ORDER BY app_date ASC ',
+   [app_YEAR , app_MONTH],
+   function(err, results, fields) {
+     if(err){
+       res.json({status:'error',massage:err})
+       return
+     }
+     res.json(results)
+   }
+ ); 
+ })
+
  app.get('/get_dayoffdent1/:app_YEAR/MONTH/:app_MONTH',jsonParser, function (req, res, next) {
   const app_YEAR = req.params.app_YEAR;
   const app_MONTH = req.params.app_MONTH;
@@ -256,6 +325,25 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
  );
  
  })
+
+ app.get('/get_alldatedent2V2/:app_YEAR/MONTH/:app_MONTH',jsonParser, function (req, res, next) {
+  const app_YEAR = req.params.app_YEAR;
+  const app_MONTH = req.params.app_MONTH;
+
+  connection.execute(
+   'Select  * from appoint where dental_t = 2 AND YEAR(app_date)=?  AND MONTH(app_date)=? ORDER BY app_date ASC ',
+   [app_YEAR , app_MONTH],
+   function(err, results, fields) {
+     if(err){
+       res.json({status:'error',massage:err})
+       return
+     }
+     res.json(results)
+   }
+ );
+ 
+ })
+
 
  
  app.get('/get_dayoffdent2/:app_YEAR/MONTH/:app_MONTH',jsonParser, function (req, res, next) {
@@ -322,6 +410,25 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
  );
  
  })
+
+ app.get('/get_fulldatedent22/:app_YEAR/MONTH/:app_MONTH/MONTH2/:app_MONTH2',jsonParser, function (req, res, next) {
+  const app_YEAR = req.params.app_YEAR;
+  const app_MONTH = req.params.app_MONTH;
+  const app_MONTH2 = req.params.app_MONTH2;
+  connection.execute(
+   'Select count(app_date) as counted, app_date as f_date from appoint where dental_t = 2 AND YEAR(app_date)=?  AND (MONTH(app_date) =? or MONTH(app_date) =?) group by app_date HAVING COUNT(*) >= 1  ',
+   [app_YEAR , app_MONTH,app_MONTH2],
+   function(err, results, fields) {
+     if(err){
+       res.json({status:'error',massage:err})
+       return
+     }
+     res.json(results)
+   }
+ );
+ 
+ })
+
 
  app.get('/get_freedatedent2/:app_date',jsonParser, function (req, res, next) {
   const app_date = req.params.app_date;
