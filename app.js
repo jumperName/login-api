@@ -10,22 +10,8 @@ var jwt = require('jsonwebtoken');
 app.use(cors())
 
  const mysql = require('mysql2')
-
- const connection = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-});
-
-connection.getConnection((err, conn) => {
-  if(err) console.log(err)
-  console.log("connect successfully")
-})
-module.exports = connection.promise()
-
-  //require('dotenv').config()
- // const connection = mysql.createConnection(process.env.DATABASE_URL)
+ require('dotenv').config()
+ const connection = mysql.createConnection(process.env.DATABASE_URL)
 
 // const connection = mysql.createConnection({
 //   host: 'localhost',
@@ -567,9 +553,9 @@ connection.execute(
      );
      })
 
-
-app.listen(3333, function () {
+     app.listen(process.env.PORT || 3000)
+//  app.listen(3333, function () {
  
-})
+//  })
 
 
