@@ -72,7 +72,7 @@ app.post('/input_appointImpace',jsonParser, function (req, res, next) { //เช
      
       if(appoint.length==1) { 
       
-        res.json({status:'ไม่สามารถจองคิวได้เนื่องจากคุณได้มีการจองคิวแล้ว',massage:'no user found'}); 
+        res.json({status:'ไม่สามารถจองคิวได้เนื่องจากคุณได้มีการจองคิวแล้ว',massage:''}); 
       
 
         return
