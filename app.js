@@ -9,15 +9,15 @@ const secret ='Fullstack-Login'
 var jwt = require('jsonwebtoken');
 app.use(cors())
 
- const mysql = require('mysql2')
- require('dotenv').config()
- const connection = mysql.createConnection(process.env.DATABASE_URL)
+  const mysql = require('mysql2')
+  require('dotenv').config()
+  //const connection = mysql.createConnection(process.env.DATABASE_URL)
 
-// const connection = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   database: 'qdent'
-// });
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  database: 'qdent'
+});
 
 app.post('/register',jsonParser, function (req, res, next) {
   bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
@@ -332,13 +332,14 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
 
 
  
- app.get('/get_dayoffdent2/:app_YEAR/MONTH/:app_MONTH',jsonParser, function (req, res, next) {
+ app.get('/get_dayoffdent2/:app_YEAR/MONTH/:app_MONTH/MONTH2/:app_MONTH2',jsonParser, function (req, res, next) {
   const app_YEAR = req.params.app_YEAR;
   const app_MONTH = req.params.app_MONTH;
+  const app_MONTH2 = req.params.app_MONTH2;
 
   connection.execute(
-   'Select  * from dayoff where dental_t = 2 AND YEAR(d_date)=?  AND MONTH(d_date)=? ',
-   [app_YEAR , app_MONTH],
+   'Select  * from dayoff where dental_t = 2 AND YEAR(d_date)=?  AND MONTH(d_date)=? or MONTH(d_date) =? ',
+   [app_YEAR , app_MONTH,app_MONTH2],
    function(err, results, fields) {
      if(err){
        res.json({status:'error',massage:err})
