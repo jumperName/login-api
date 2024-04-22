@@ -209,8 +209,8 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
  );
  
  })
-
-  app.get('/get_holidays',jsonParser, function (req, res, next) {
+//  app.get('/get_holidays',jsonParser, function (req, res, next) {
+  app.get('/get_holidays2',jsonParser, function (req, res, next) {
   connection.execute(
    'select * from holidays',
    function(err, results, fields) {
