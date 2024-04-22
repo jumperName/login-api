@@ -11,13 +11,13 @@ app.use(cors())
 
   const mysql = require('mysql2')
   require('dotenv').config()
-  //const connection = mysql.createConnection(process.env.DATABASE_URL)
+  const connection = mysql.createConnection(process.env.DATABASE_URL)
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  database: 'qdent'
-});
+// const connection = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'root',
+//   database: 'qdent'
+// });
 
 app.post('/register',jsonParser, function (req, res, next) {
   bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
