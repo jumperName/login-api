@@ -209,8 +209,7 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
  );
  
  })
-//  app.get('/get_holidays',jsonParser, function (req, res, next) {
-  app.get('/get_holidays2',jsonParser, function (req, res, next) {
+   app.get('/get_holidays',jsonParser, function (req, res, next) {
   connection.execute(
    'select * from holidays',
    function(err, results, fields) {
@@ -398,7 +397,9 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
  
  })
 
- app.get('/get_fulldatedent22/:app_YEAR/MONTH/:app_MONTH/MONTH2/:app_MONTH2',jsonParser, function (req, res, next) {
+//  app.get('/get_fulldatedent22/:app_YEAR/MONTH/:app_MONTH/MONTH2/:app_MONTH2',jsonParser, function (req, res, next) {
+  
+ app.get('/get_fulldatedent23/:app_YEAR/MONTH/:app_MONTH/MONTH2/:app_MONTH2',jsonParser, function (req, res, next) {
   const app_YEAR = req.params.app_YEAR;
   const app_MONTH = req.params.app_MONTH;
   const app_MONTH2 = req.params.app_MONTH2;
