@@ -9,7 +9,8 @@ const secret ='Fullstack-Login'
 var jwt = require('jsonwebtoken');
 app.use(cors())
 
-  const mysql = require('mysql2')
+   const mysql = require('mysql2')
+
   require('dotenv').config()
   const connection = mysql.createConnection(process.env.DATABASE_URL)
 
@@ -63,6 +64,26 @@ app.post('/input_appointImpace',jsonParser, function (req, res, next) { //เช
    }
  );
  })
+
+ 
+ app.post('/Check_dent1',jsonParser, function (req, res, next) {
+  connection.execute(
+    'select * from appoint  where dental_t = 1   AND app_date < now() - INTERVAL-7  day  AND cid=? AND firstname=? AND lastname=? ORDER BY app_date ASC',
+    [req.body.cid,req.body.firstname,req.body.lastname], 
+    function(err, appoint, fields) {
+     
+      if(appoint.length==1) { 
+      
+        res.json({status:'ไม่สามารถจองคิวได้เนื่องจากคุณได้มีการจองคิวแล้ว',massage:''}); 
+      
+
+        return
+       }   
+      
+    }
+  );
+})
+
 
  app.post('/Check_dent2',jsonParser, function (req, res, next) {
   connection.execute(
