@@ -9,16 +9,25 @@ const secret ='Fullstack-Login'
 var jwt = require('jsonwebtoken');
 app.use(cors())
 
-   const mysql = require('mysql2')
-
-  require('dotenv').config()
-  const connection = mysql.createConnection(process.env.DATABASE_URL)
+const mysql = require('mysql2')
+require('dotenv').config()
 
 // const connection = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   database: 'qdent'
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_DATABASE
 // });
+
+
+  // const connection = mysql.createConnection(process.env.DATABASE_URL)
+
+const connection = mysql.createPool({
+  host:  process.env.DB_HOST,
+  user:  process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE
+});
 
 app.post('/register',jsonParser, function (req, res, next) {
   bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
@@ -576,9 +585,9 @@ connection.execute(
      );
      })
 
-     app.listen(process.env.PORT || 3000)
-//  app.listen(3333, function () {
+    //  app.listen(process.env.PORT || 3000)
+ app.listen(5000, function () {
  
-//  })
+ })
 
 
