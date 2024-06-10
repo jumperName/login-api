@@ -22,11 +22,12 @@ require('dotenv').config()
 
   // const connection = mysql.createConnection(process.env.DATABASE_URL)
 
-const connection = mysql.createPool({
-  host:  process.env.DB_HOST,
-  user:  process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE
+const connection = mysql.createConnection({
+  host:  'otwsl2e23jrxcqvx.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
+  port: '3306',
+  user:  'ip7tmothayu4a7p8',
+  password: 'lva61969uthmxiwe',
+  database: 'zm596fqj483q2h3v'
 });
 
 app.post('/register',jsonParser, function (req, res, next) {
