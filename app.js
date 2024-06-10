@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const secret ='Fullstack-Login'
 var jwt = require('jsonwebtoken');
+const PORT = process.env.PORT || 5000
 app.use(cors())
 
 const mysql = require('mysql2')
@@ -587,7 +588,7 @@ connection.execute(
      })
 
     //  app.listen(process.env.PORT || 3000)
- app.listen(5000, function () {
+ app.listen(PORT, function () {
  
  })
 
