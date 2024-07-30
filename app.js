@@ -9,7 +9,6 @@ const secret ='Fullstack-Login'
 var jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 5000
 app.use(cors())
-
 const mysql = require('mysql2')
 require('dotenv').config()
 
@@ -23,13 +22,19 @@ require('dotenv').config()
 
   // const connection = mysql.createConnection(process.env.DATABASE_URL)
 
-const connection = mysql.createConnection({
-  host:  'otwsl2e23jrxcqvx.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
-  port: '3306',
-  user:  'ip7tmothayu4a7p8',
-  password: 'lva61969uthmxiwe',
-  database: 'zm596fqj483q2h3v'
-});
+  const connection = mysql.createConnection({
+    host:  'otwsl2e23jrxcqvx.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
+    port: '3306',
+    user:  'ip7tmothayu4a7p8',
+    password: 'lva61969uthmxiwe',
+    database: 'zm596fqj483q2h3v'
+  });
+  
+//   const connection = mysql.createConnection({
+//   host:  'localhost', 
+//   user:  'root',
+//   database: 'qdent'
+// });
 
 app.post('/register',jsonParser, function (req, res, next) {
   bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
@@ -153,7 +158,7 @@ app.get('/authen',jsonParser, function (req, res, next) {
 app.get('/get_extract/:app_date',jsonParser, function (req, res, next) { //ตัวเดิม
   const app_date = req.params.app_date;
   connection.execute(
-    'select * from appoint where dental_t = 1 AND  app_date = ?',
+    'select a.app_id, a.cid, a.app_date, a.app_time, a.firstname, a.lastname, a.tel, a.dental_t, a.app_line, a.timestamp, s.status_name FROM appoint a  INNER JOIN status s ON  a.status_id = s.status_id where dental_t = 1 AND  app_date = ?',
     [app_date],
     function(err, results, fields) {
      if(err){
@@ -171,7 +176,7 @@ app.get('/get_extract/:app_date',jsonParser, function (req, res, next) { //ต�
 app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
   const app_date = req.params.app_date;
   connection.execute(
-   'select * from appoint where dental_t = 2 AND  app_date = ?',
+   'select a.app_id, a.cid, a.app_date, a.app_time, a.firstname, a.lastname, a.tel, a.dental_t, a.app_line, a.timestamp, s.status_name FROM appoint a  INNER JOIN status s ON  a.status_id = s.status_id where dental_t = 2 AND  app_date = ?',
    [app_date],
    function(err, results, fields) {
      if(err){
@@ -262,7 +267,7 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
   connection.execute(
    'Select count(app_date) as counted, app_date as f_date from appoint where dental_t = 1 AND YEAR(app_date)=?  AND MONTH(app_date)=? group by app_date HAVING COUNT(*) >= 3',
    [app_YEAR , app_MONTH],
-   function(err, results, fields) {
+   function(err, results, fields) {f
      if(err){
        res.json({status:'error',massage:err})
        return
@@ -278,7 +283,7 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
   const app_MONTH = req.params.app_MONTH;
 
   connection.execute(
-   'Select  * from appoint where dental_t = 1 AND YEAR(app_date)=?  AND MONTH(app_date)=? ',
+   'Select a.app_id, a.cid, a.app_date, a.app_time, a.firstname, a.lastname, a.tel, a.dental_t, a.app_line, a.timestamp, s.status_name FROM appoint a  INNER JOIN status s ON  a.status_id = s.status_id where dental_t = 1 AND YEAR(app_date)=?  AND MONTH(app_date)=? ',
    [app_YEAR , app_MONTH],
    function(err, results, fields) {
      if(err){
@@ -330,7 +335,7 @@ app.get('/get_impacted/:app_date',jsonParser, function (req, res, next) {
   const app_MONTH = req.params.app_MONTH;
 
   connection.execute(
-   'Select  * from appoint where dental_t = 2 AND YEAR(app_date)=?  AND MONTH(app_date)=? ',
+   'Select  a.app_id, a.cid, a.app_date, a.app_time, a.firstname, a.lastname, a.tel, a.dental_t, a.app_line, a.timestamp, s.status_name FROM appoint a  INNER JOIN status s ON  a.status_id = s.status_id where dental_t = 2 AND YEAR(app_date)=?  AND MONTH(app_date)=? ',
    [app_YEAR , app_MONTH],
    function(err, results, fields) {
      if(err){
@@ -587,9 +592,40 @@ connection.execute(
      );
      })
 
+     app.get('/user/:id',jsonParser, function (req, res, next) {
+      const id = req.params.id;
+      connection.execute(
+        'SELECT * FROM appoint WHERE app_id =?',
+       [id],
+       function(err, results, fields) {
+        if(err){
+          res.json({status:'error',massage:get_impactederr})
+          return
+        }
+        res.json(results)
+      }
+    );
+    
+    })
+   
+     app.put('/user/update',jsonParser, function (req, res, next) {
+      // const id = req.params.id;
+      connection.execute(
+        'UPDATE appoint SET firstname=?, lastname=?,cid=?,status_id=? WHERE app_id =?',
+        [req.body.firstname,req.body.lastname,req.body.cid,req.body.status_id,req.body.app_id],
+       function(err, results, fields) {
+         if(err){
+           res.json({status:'error',massage:err})
+           return
+         }
+         res.json({status:'ok'})
+       }
+     );
+     })
+
+
     //  app.listen(process.env.PORT || 3000)
- app.listen(PORT, function () {
+ app.listen(5000, function () {
  
  })
-
 
